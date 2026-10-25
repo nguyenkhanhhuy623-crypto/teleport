@@ -1,26 +1,24 @@
 --[[
     ═══════════════════════════════════════════════════════════
-      TELEPORT WAYPOINT PRO  •  Universal Script
+      TELEPORT WAYPOINT PRO
       Key: .
-      Features: Beautiful GUI • Avatar • FPS • Ping • Smooth Anim
+      Style: Modern Dark
     ═══════════════════════════════════════════════════════════
 ]]
 
-local Players           = game:GetService("Players")
-local TweenService      = game:GetService("TweenService")
-local UserInputService  = game:GetService("UserInputService")
-local RunService        = game:GetService("RunService")
-local Stats             = game:GetService("Stats")
-local CoreGui           = game:GetService("CoreGui")
-local Lighting          = game:GetService("Lighting")
+local Players          = game:GetService("Players")
+local TweenService     = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService       = game:GetService("RunService")
+local Stats            = game:GetService("Stats")
+local CoreGui          = game:GetService("CoreGui")
 
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
 
--- Cleanup old
 pcall(function()
-    if CoreGui:FindFirstChild("TPWaypointPro") then CoreGui.TPWaypointPro:Destroy() end
-    if PlayerGui:FindFirstChild("TPWaypointPro") then PlayerGui.TPWaypointPro:Destroy() end
+    if CoreGui:FindFirstChild("TPWaypointPro") then
+        CoreGui.TPWaypointPro:Destroy()
+    end
 end)
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -30,362 +28,325 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = CoreGui
 
---// ==================== UTILS ====================
 local function Create(class, props)
     local obj = Instance.new(class)
-    for k, v in pairs(props) do
-        if k ~= "Parent" then
-            obj[k] = v
-        end
+    for k, v in pairs(props or {}) do
+        if k ~= "Parent" then obj[k] = v end
     end
-    if props.Parent then obj.Parent = props.Parent end
+    if props and props.Parent then obj.Parent = props.Parent end
     return obj
 end
 
-local function Tween(obj, time, props, style, dir)
-    local t = TweenService:Create(obj, TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props)
+local function Tween(obj, time, goal, style, dir)
+    local t = TweenService:Create(obj, TweenInfo.new(time or 0.35, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), goal)
     t:Play()
     return t
 end
 
-local function Round(n) return math.floor(n + 0.5) end
+local function Round(n)
+    return math.floor(n + 0.5)
+end
 
---// ==================== KEY SYSTEM ====================
+--// ====================== KEY SYSTEM ======================
 local KEY = "."
 
 local KeyFrame = Create("Frame", {
     Name = "KeyFrame",
-    Size = UDim2.new(0, 380, 0, 260),
-    Position = UDim2.new(0.5, -190, 0.5, -130),
-    BackgroundColor3 = Color3.fromRGB(16, 16, 22),
+    Size = UDim2.new(0, 0, 0, 0),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    BackgroundColor3 = Color3.fromRGB(18, 18, 24),
     BorderSizePixel = 0,
-    Parent = ScreenGui,
-    ClipsDescendants = true
+    ClipsDescendants = true,
+    Parent = ScreenGui
 })
-
-Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = KeyFrame})
+Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = KeyFrame})
 Create("UIStroke", {
-    Color = Color3.fromRGB(90, 70, 255),
-    Thickness = 1.8,
-    Transparency = 0.3,
+    Color = Color3.fromRGB(70, 70, 95),
+    Thickness = 1,
+    Transparency = 0.4,
     Parent = KeyFrame
 })
 
--- Gradient glow
-local KeyGrad = Create("UIGradient", {
-    Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 30, 80)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 18, 35)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 25, 60))
-    },
-    Rotation = 45,
-    Parent = KeyFrame
-})
-
--- Accent line top
-local Accent = Create("Frame", {
-    Size = UDim2.new(1, 0, 0, 3),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(130, 90, 255),
+Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 2),
+    BackgroundColor3 = Color3.fromRGB(100, 80, 255),
     BorderSizePixel = 0,
     Parent = KeyFrame
 })
-Create("UIGradient", {
-    Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(90, 50, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(90, 50, 255))
-    },
-    Parent = Accent
-})
 
-local KeyTitle = Create("TextLabel", {
-    Size = UDim2.new(1, 0, 0, 40),
-    Position = UDim2.new(0, 0, 0, 25),
+Create("TextLabel", {
+    Size = UDim2.new(1, 0, 0, 32),
+    Position = UDim2.new(0, 0, 0, 22),
     BackgroundTransparency = 1,
-    Text = "🔐  TELEPORT WAYPOINT PRO",
-    TextColor3 = Color3.fromRGB(240, 240, 255),
+    Text = "Teleport Waypoint Pro",
+    TextColor3 = Color3.fromRGB(245, 245, 255),
     Font = Enum.Font.GothamBold,
-    TextSize = 20,
+    TextSize = 18,
     Parent = KeyFrame
 })
 
-local KeySub = Create("TextLabel", {
-    Size = UDim2.new(1, -40, 0, 22),
-    Position = UDim2.new(0, 20, 0, 68),
-    BackgroundTransparency = 1,
-    Text = "Enter the key to unlock",
-    TextColor3 = Color3.fromRGB(150, 150, 180),
-    Font = Enum.Font.Gotham,
-    TextSize = 14,
-    Parent = KeyFrame
-})
-
-local KeyBox = Create("TextBox", {
-    Size = UDim2.new(1, -60, 0, 44),
-    Position = UDim2.new(0, 30, 0, 110),
-    BackgroundColor3 = Color3.fromRGB(28, 28, 40),
-    Text = "",
-    PlaceholderText = "Key...",
-    PlaceholderColor3 = Color3.fromRGB(100, 100, 130),
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamSemibold,
-    TextSize = 16,
-    TextXAlignment = Enum.TextXAlignment.Center,
-    ClearTextOnFocus = false,
-    Parent = KeyFrame
-})
-Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = KeyBox})
-Create("UIStroke", {
-    Color = Color3.fromRGB(80, 60, 180),
-    Thickness = 1.2,
-    Transparency = 0.5,
-    Parent = KeyBox
-})
-
-local UnlockBtn = Create("TextButton", {
-    Size = UDim2.new(1, -60, 0, 44),
-    Position = UDim2.new(0, 30, 0, 170),
-    BackgroundColor3 = Color3.fromRGB(100, 60, 255),
-    Text = "UNLOCK",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 16,
-    AutoButtonColor = false,
-    Parent = KeyFrame
-})
-Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = UnlockBtn})
-
-local KeyStatus = Create("TextLabel", {
+Create("TextLabel", {
     Size = UDim2.new(1, 0, 0, 20),
-    Position = UDim2.new(0, 0, 1, -28),
+    Position = UDim2.new(0, 0, 0, 54),
     BackgroundTransparency = 1,
-    Text = "",
-    TextColor3 = Color3.fromRGB(255, 90, 90),
+    Text = "Enter key to continue",
+    TextColor3 = Color3.fromRGB(140, 140, 165),
     Font = Enum.Font.Gotham,
     TextSize = 13,
     Parent = KeyFrame
 })
 
--- Hover effect for Unlock
+local KeyBox = Create("TextBox", {
+    Size = UDim2.new(1, -48, 0, 42),
+    Position = UDim2.new(0, 24, 0, 95),
+    BackgroundColor3 = Color3.fromRGB(28, 28, 38),
+    Text = "",
+    PlaceholderText = "Key",
+    PlaceholderColor3 = Color3.fromRGB(100, 100, 125),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamMedium,
+    TextSize = 15,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    ClearTextOnFocus = false,
+    Parent = KeyFrame
+})
+Create("UICorner", {CornerRadius = UDim.new(0, 9), Parent = KeyBox})
+
+local UnlockBtn = Create("TextButton", {
+    Size = UDim2.new(1, -48, 0, 42),
+    Position = UDim2.new(0, 24, 0, 150),
+    BackgroundColor3 = Color3.fromRGB(95, 70, 255),
+    Text = "Unlock",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 15,
+    AutoButtonColor = false,
+    Parent = KeyFrame
+})
+Create("UICorner", {CornerRadius = UDim.new(0, 9), Parent = UnlockBtn})
+
+local KeyStatus = Create("TextLabel", {
+    Size = UDim2.new(1, 0, 0, 18),
+    Position = UDim2.new(0, 0, 1, -32),
+    BackgroundTransparency = 1,
+    Text = "",
+    Font = Enum.Font.Gotham,
+    TextSize = 12,
+    Parent = KeyFrame
+})
+
 UnlockBtn.MouseEnter:Connect(function()
-    Tween(UnlockBtn, 0.2, {BackgroundColor3 = Color3.fromRGB(130, 90, 255)})
+    Tween(UnlockBtn, 0.18, {BackgroundColor3 = Color3.fromRGB(115, 90, 255)})
 end)
 UnlockBtn.MouseLeave:Connect(function()
-    Tween(UnlockBtn, 0.2, {BackgroundColor3 = Color3.fromRGB(100, 60, 255)})
+    Tween(UnlockBtn, 0.18, {BackgroundColor3 = Color3.fromRGB(95, 70, 255)})
 end)
 
---// ==================== MAIN GUI ====================
+--// ====================== MAIN GUI ======================
 local Main = Create("Frame", {
     Name = "Main",
     Size = UDim2.new(0, 0, 0, 0),
     Position = UDim2.new(0.5, 0, 0.5, 0),
-    BackgroundColor3 = Color3.fromRGB(14, 14, 20),
+    BackgroundColor3 = Color3.fromRGB(16, 16, 22),
     BorderSizePixel = 0,
     Visible = false,
     ClipsDescendants = true,
     Parent = ScreenGui
 })
-Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = Main})
+Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = Main})
 Create("UIStroke", {
-    Color = Color3.fromRGB(70, 50, 200),
-    Thickness = 1.6,
+    Color = Color3.fromRGB(55, 55, 75),
+    Thickness = 1,
     Transparency = 0.35,
     Parent = Main
 })
 
-local MainGrad = Create("UIGradient", {
-    Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(22, 18, 40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(14, 14, 22))
-    },
-    Rotation = 90,
-    Parent = Main
-})
-
--- Top bar
-local TopBar = Create("Frame", {
-    Size = UDim2.new(1, 0, 0, 58),
-    BackgroundColor3 = Color3.fromRGB(20, 18, 32),
+-- Header
+local Header = Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 52),
+    BackgroundColor3 = Color3.fromRGB(20, 20, 28),
     BorderSizePixel = 0,
     Parent = Main
 })
-Create("UICorner", {CornerRadius = UDim.new(0, 16), Parent = TopBar})
--- Fix bottom corners of topbar
+Create("UICorner", {CornerRadius = UDim.new(0, 14), Parent = Header})
 Create("Frame", {
-    Size = UDim2.new(1, 0, 0, 20),
-    Position = UDim2.new(0, 0, 1, -20),
-    BackgroundColor3 = Color3.fromRGB(20, 18, 32),
+    Size = UDim2.new(1, 0, 0, 16),
+    Position = UDim2.new(0, 0, 1, -16),
+    BackgroundColor3 = Color3.fromRGB(20, 20, 28),
     BorderSizePixel = 0,
-    Parent = TopBar
+    Parent = Header
 })
 
--- Avatar
-local AvatarFrame = Create("Frame", {
-    Size = UDim2.new(0, 40, 0, 40),
-    Position = UDim2.new(0, 12, 0, 9),
-    BackgroundColor3 = Color3.fromRGB(40, 35, 70),
-    BorderSizePixel = 0,
-    Parent = TopBar
+Create("TextLabel", {
+    Size = UDim2.new(0, 220, 1, 0),
+    Position = UDim2.new(0, 16, 0, 0),
+    BackgroundTransparency = 1,
+    Text = "Teleport Waypoint",
+    TextColor3 = Color3.fromRGB(245, 245, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 16,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Parent = Header
 })
-Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = AvatarFrame})
+
+local CloseBtn = Create("TextButton", {
+    Size = UDim2.new(0, 30, 0, 30),
+    Position = UDim2.new(1, -40, 0.5, -15),
+    BackgroundColor3 = Color3.fromRGB(35, 35, 48),
+    Text = "×",
+    TextColor3 = Color3.fromRGB(220, 90, 90),
+    Font = Enum.Font.GothamBold,
+    TextSize = 18,
+    AutoButtonColor = false,
+    Parent = Header
+})
+Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = CloseBtn})
+
+-- User Card
+local UserCard = Create("Frame", {
+    Size = UDim2.new(1, -28, 0, 72),
+    Position = UDim2.new(0, 14, 0, 64),
+    BackgroundColor3 = Color3.fromRGB(24, 24, 34),
+    BorderSizePixel = 0,
+    Parent = Main
+})
+Create("UICorner", {CornerRadius = UDim.new(0, 11), Parent = UserCard})
+
+local AvatarHolder = Create("Frame", {
+    Size = UDim2.new(0, 46, 0, 46),
+    Position = UDim2.new(0, 12, 0.5, -23),
+    BackgroundColor3 = Color3.fromRGB(40, 40, 55),
+    BorderSizePixel = 0,
+    Parent = UserCard
+})
+Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = AvatarHolder})
 Create("UIStroke", {
-    Color = Color3.fromRGB(130, 90, 255),
-    Thickness = 1.5,
-    Parent = AvatarFrame
+    Color = Color3.fromRGB(100, 80, 255),
+    Thickness = 1.4,
+    Parent = AvatarHolder
 })
 
-local AvatarImg = Create("ImageLabel", {
+local Avatar = Create("ImageLabel", {
     Size = UDim2.new(1, -4, 1, -4),
     Position = UDim2.new(0, 2, 0, 2),
     BackgroundTransparency = 1,
     Image = "",
-    Parent = AvatarFrame
+    Parent = AvatarHolder
 })
-Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = AvatarImg})
+Create("UICorner", {CornerRadius = UDim.new(1, 0), Parent = Avatar})
 
--- Load avatar
 task.spawn(function()
-    local ok, content = pcall(function()
+    local ok, img = pcall(function()
         return Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
     end)
-    if ok and content then
-        AvatarImg.Image = content
-    end
+    if ok and img then Avatar.Image = img end
 end)
 
-local UserNameLabel = Create("TextLabel", {
+Create("TextLabel", {
     Size = UDim2.new(0, 180, 0, 20),
-    Position = UDim2.new(0, 62, 0, 10),
+    Position = UDim2.new(0, 70, 0, 15),
     BackgroundTransparency = 1,
     Text = LocalPlayer.DisplayName,
     TextColor3 = Color3.fromRGB(255, 255, 255),
     Font = Enum.Font.GothamBold,
     TextSize = 15,
     TextXAlignment = Enum.TextXAlignment.Left,
-    Parent = TopBar
+    Parent = UserCard
 })
 
-local UserTagLabel = Create("TextLabel", {
+Create("TextLabel", {
     Size = UDim2.new(0, 180, 0, 16),
-    Position = UDim2.new(0, 62, 0, 30),
+    Position = UDim2.new(0, 70, 0, 36),
     BackgroundTransparency = 1,
     Text = "@" .. LocalPlayer.Name,
-    TextColor3 = Color3.fromRGB(140, 140, 170),
+    TextColor3 = Color3.fromRGB(140, 140, 165),
     Font = Enum.Font.Gotham,
     TextSize = 12,
     TextXAlignment = Enum.TextXAlignment.Left,
-    Parent = TopBar
+    Parent = UserCard
 })
 
--- FPS & Ping
-local StatsFrame = Create("Frame", {
-    Size = UDim2.new(0, 110, 0, 40),
-    Position = UDim2.new(1, -160, 0, 9),
-    BackgroundTransparency = 1,
-    Parent = TopBar
+-- Stats Card
+local StatsCard = Create("Frame", {
+    Size = UDim2.new(1, -28, 0, 48),
+    Position = UDim2.new(0, 14, 0, 148),
+    BackgroundColor3 = Color3.fromRGB(24, 24, 34),
+    BorderSizePixel = 0,
+    Parent = Main
 })
+Create("UICorner", {CornerRadius = UDim.new(0, 11), Parent = StatsCard})
 
 local FPSLabel = Create("TextLabel", {
-    Size = UDim2.new(1, 0, 0, 18),
+    Size = UDim2.new(0.5, -10, 1, 0),
+    Position = UDim2.new(0, 14, 0, 0),
     BackgroundTransparency = 1,
-    Text = "FPS: --",
-    TextColor3 = Color3.fromRGB(100, 255, 160),
+    Text = "FPS  --",
+    TextColor3 = Color3.fromRGB(100, 220, 150),
     Font = Enum.Font.GothamSemibold,
-    TextSize = 13,
-    TextXAlignment = Enum.TextXAlignment.Right,
-    Parent = StatsFrame
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Parent = StatsCard
 })
 
 local PingLabel = Create("TextLabel", {
-    Size = UDim2.new(1, 0, 0, 18),
-    Position = UDim2.new(0, 0, 0, 18),
+    Size = UDim2.new(0.5, -10, 1, 0),
+    Position = UDim2.new(0.5, 0, 0, 0),
     BackgroundTransparency = 1,
-    Text = "PING: --",
-    TextColor3 = Color3.fromRGB(100, 200, 255),
+    Text = "PING  --ms",
+    TextColor3 = Color3.fromRGB(100, 180, 255),
     Font = Enum.Font.GothamSemibold,
-    TextSize = 13,
-    TextXAlignment = Enum.TextXAlignment.Right,
-    Parent = StatsFrame
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Parent = StatsCard
 })
 
--- Close button
-local CloseBtn = Create("TextButton", {
-    Size = UDim2.new(0, 32, 0, 32),
-    Position = UDim2.new(1, -42, 0, 13),
-    BackgroundColor3 = Color3.fromRGB(40, 30, 55),
-    Text = "×",
-    TextColor3 = Color3.fromRGB(255, 110, 110),
-    Font = Enum.Font.GothamBold,
-    TextSize = 20,
-    AutoButtonColor = false,
-    Parent = TopBar
-})
-Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = CloseBtn})
-
--- Content area
-local Content = Create("Frame", {
-    Size = UDim2.new(1, -24, 1, -78),
-    Position = UDim2.new(0, 12, 0, 66),
-    BackgroundTransparency = 1,
-    Parent = Main
-})
-
--- Name input
+-- Name Input
 local NameBox = Create("TextBox", {
-    Size = UDim2.new(1, 0, 0, 40),
-    BackgroundColor3 = Color3.fromRGB(26, 24, 40),
+    Size = UDim2.new(1, -28, 0, 40),
+    Position = UDim2.new(0, 14, 0, 210),
+    BackgroundColor3 = Color3.fromRGB(28, 28, 38),
     Text = "",
     PlaceholderText = "Nhập tên chỗ muốn lưu...",
-    PlaceholderColor3 = Color3.fromRGB(110, 110, 140),
+    PlaceholderColor3 = Color3.fromRGB(110, 110, 135),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     Font = Enum.Font.Gotham,
     TextSize = 14,
     ClearTextOnFocus = false,
-    Parent = Content
+    Parent = Main
 })
-Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = NameBox})
-Create("UIStroke", {
-    Color = Color3.fromRGB(70, 55, 140),
-    Thickness = 1,
-    Transparency = 0.5,
-    Parent = NameBox
-})
-Create("UIPadding", {
-    PaddingLeft = UDim.new(0, 12),
-    Parent = NameBox
-})
+Create("UICorner", {CornerRadius = UDim.new(0, 9), Parent = NameBox})
+Create("UIPadding", {PaddingLeft = UDim.new(0, 12), Parent = NameBox})
 
 -- Set Button
 local SetBtn = Create("TextButton", {
-    Size = UDim2.new(1, 0, 0, 42),
-    Position = UDim2.new(0, 0, 0, 50),
-    BackgroundColor3 = Color3.fromRGB(90, 50, 255),
-    Text = "✦  SET VỊ TRÍ HIỆN TẠI",
+    Size = UDim2.new(1, -28, 0, 42),
+    Position = UDim2.new(0, 14, 0, 260),
+    BackgroundColor3 = Color3.fromRGB(95, 70, 255),
+    Text = "SET VỊ TRÍ HIỆN TẠI",
     TextColor3 = Color3.fromRGB(255, 255, 255),
     Font = Enum.Font.GothamBold,
-    TextSize = 15,
+    TextSize = 14,
     AutoButtonColor = false,
-    Parent = Content
+    Parent = Main
 })
-Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = SetBtn})
+Create("UICorner", {CornerRadius = UDim.new(0, 9), Parent = SetBtn})
 
 -- List
 local ListFrame = Create("ScrollingFrame", {
-    Size = UDim2.new(1, 0, 1, -110),
-    Position = UDim2.new(0, 0, 0, 105),
-    BackgroundColor3 = Color3.fromRGB(20, 18, 32),
+    Size = UDim2.new(1, -28, 0, 210),
+    Position = UDim2.new(0, 14, 0, 316),
+    BackgroundColor3 = Color3.fromRGB(22, 22, 30),
     BorderSizePixel = 0,
     ScrollBarThickness = 3,
-    ScrollBarImageColor3 = Color3.fromRGB(120, 90, 255),
+    ScrollBarImageColor3 = Color3.fromRGB(100, 80, 255),
     CanvasSize = UDim2.new(0, 0, 0, 0),
-    Parent = Content
+    Parent = Main
 })
-Create("UICorner", {CornerRadius = UDim.new(0, 10), Parent = ListFrame})
+Create("UICorner", {CornerRadius = UDim.new(0, 11), Parent = ListFrame})
 
 local ListLayout = Create("UIListLayout", {
     SortOrder = Enum.SortOrder.LayoutOrder,
-    Padding = UDim.new(0, 7),
+    Padding = UDim.new(0, 6),
     Parent = ListFrame
 })
 Create("UIPadding", {
@@ -396,32 +357,32 @@ Create("UIPadding", {
     Parent = ListFrame
 })
 
---// ==================== LOGIC ====================
+--// Logic
 local Waypoints = {}
 local isOpen = false
 local isUnlocked = false
 
 local function UpdateList()
-    for _, child in ipairs(ListFrame:GetChildren()) do
-        if child:IsA("Frame") then child:Destroy() end
+    for _, c in ipairs(ListFrame:GetChildren()) do
+        if c:IsA("Frame") then c:Destroy() end
     end
 
     for i, data in ipairs(Waypoints) do
         local Item = Create("Frame", {
-            Size = UDim2.new(1, -6, 0, 50),
-            BackgroundColor3 = Color3.fromRGB(30, 28, 48),
+            Size = UDim2.new(1, -6, 0, 46),
+            BackgroundColor3 = Color3.fromRGB(30, 30, 42),
             LayoutOrder = i,
             Parent = ListFrame
         })
-        Create("UICorner", {CornerRadius = UDim.new(0, 9), Parent = Item})
+        Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Item})
 
-        local NameLbl = Create("TextLabel", {
-            Size = UDim2.new(1, -115, 1, 0),
+        Create("TextLabel", {
+            Size = UDim2.new(1, -110, 1, 0),
             Position = UDim2.new(0, 12, 0, 0),
             BackgroundTransparency = 1,
             Text = data.Name,
-            TextColor3 = Color3.fromRGB(240, 240, 255),
-            Font = Enum.Font.GothamSemibold,
+            TextColor3 = Color3.fromRGB(235, 235, 250),
+            Font = Enum.Font.GothamMedium,
             TextSize = 14,
             TextXAlignment = Enum.TextXAlignment.Left,
             TextTruncate = Enum.TextTruncate.AtEnd,
@@ -429,9 +390,9 @@ local function UpdateList()
         })
 
         local TeleBtn = Create("TextButton", {
-            Size = UDim2.new(0, 58, 0, 30),
-            Position = UDim2.new(1, -105, 0.5, -15),
-            BackgroundColor3 = Color3.fromRGB(0, 150, 255),
+            Size = UDim2.new(0, 52, 0, 28),
+            Position = UDim2.new(1, -98, 0.5, -14),
+            BackgroundColor3 = Color3.fromRGB(0, 145, 255),
             Text = "TELE",
             TextColor3 = Color3.fromRGB(255, 255, 255),
             Font = Enum.Font.GothamBold,
@@ -439,13 +400,13 @@ local function UpdateList()
             AutoButtonColor = false,
             Parent = Item
         })
-        Create("UICorner", {CornerRadius = UDim.new(0, 7), Parent = TeleBtn})
+        Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = TeleBtn})
 
         TeleBtn.MouseEnter:Connect(function()
-            Tween(TeleBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(40, 180, 255)})
+            Tween(TeleBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(40, 170, 255)})
         end)
         TeleBtn.MouseLeave:Connect(function()
-            Tween(TeleBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(0, 150, 255)})
+            Tween(TeleBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(0, 145, 255)})
         end)
 
         TeleBtn.MouseButton1Click:Connect(function()
@@ -456,17 +417,17 @@ local function UpdateList()
         end)
 
         local DelBtn = Create("TextButton", {
-            Size = UDim2.new(0, 30, 0, 30),
-            Position = UDim2.new(1, -40, 0.5, -15),
+            Size = UDim2.new(0, 28, 0, 28),
+            Position = UDim2.new(1, -38, 0.5, -14),
             BackgroundColor3 = Color3.fromRGB(200, 55, 70),
-            Text = "✕",
+            Text = "×",
             TextColor3 = Color3.fromRGB(255, 255, 255),
             Font = Enum.Font.GothamBold,
-            TextSize = 13,
+            TextSize = 14,
             AutoButtonColor = false,
             Parent = Item
         })
-        Create("UICorner", {CornerRadius = UDim.new(0, 7), Parent = DelBtn})
+        Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = DelBtn})
 
         DelBtn.MouseEnter:Connect(function()
             Tween(DelBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(230, 70, 85)})
@@ -489,10 +450,10 @@ ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 end)
 
 SetBtn.MouseEnter:Connect(function()
-    Tween(SetBtn, 0.18, {BackgroundColor3 = Color3.fromRGB(120, 80, 255)})
+    Tween(SetBtn, 0.18, {BackgroundColor3 = Color3.fromRGB(115, 90, 255)})
 end)
 SetBtn.MouseLeave:Connect(function()
-    Tween(SetBtn, 0.18, {BackgroundColor3 = Color3.fromRGB(90, 50, 255)})
+    Tween(SetBtn, 0.18, {BackgroundColor3 = Color3.fromRGB(95, 70, 255)})
 end)
 
 SetBtn.MouseButton1Click:Connect(function()
@@ -511,7 +472,6 @@ SetBtn.MouseButton1Click:Connect(function()
     end
 end)
 
---// ==================== OPEN / CLOSE ANIM ====================
 local function OpenMain()
     if isOpen then return end
     isOpen = true
@@ -519,16 +479,16 @@ local function OpenMain()
     Main.Size = UDim2.new(0, 0, 0, 0)
     Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 
-    Tween(Main, 0.45, {
-        Size = UDim2.new(0, 360, 0, 480),
-        Position = UDim2.new(0.5, -180, 0.5, -240)
+    Tween(Main, 0.4, {
+        Size = UDim2.new(0, 340, 0, 545),
+        Position = UDim2.new(0.5, -170, 0.5, -272)
     }, Enum.EasingStyle.Back)
 end
 
 local function CloseMain()
     if not isOpen then return end
     isOpen = false
-    local t = Tween(Main, 0.35, {
+    local t = Tween(Main, 0.32, {
         Size = UDim2.new(0, 0, 0, 0),
         Position = UDim2.new(0.5, 0, 0.5, 0)
     }, Enum.EasingStyle.Quint)
@@ -538,42 +498,32 @@ local function CloseMain()
 end
 
 CloseBtn.MouseEnter:Connect(function()
-    Tween(CloseBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(60, 40, 70)})
+    Tween(CloseBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(50, 40, 60)})
 end)
 CloseBtn.MouseLeave:Connect(function()
-    Tween(CloseBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(40, 30, 55)})
+    Tween(CloseBtn, 0.15, {BackgroundColor3 = Color3.fromRGB(35, 35, 48)})
 end)
 
-CloseBtn.MouseButton1Click:Connect(function()
-    CloseMain()
-end)
+CloseBtn.MouseButton1Click:Connect(CloseMain)
 
---// ==================== KEY LOGIC ====================
 local function TryUnlock()
     if KeyBox.Text == KEY then
-        KeyStatus.TextColor3 = Color3.fromRGB(100, 255, 140)
-        KeyStatus.Text = "✓  Key correct!"
+        KeyStatus.TextColor3 = Color3.fromRGB(100, 230, 140)
+        KeyStatus.Text = "Correct key"
         isUnlocked = true
 
-        -- Beautiful fade out
-        Tween(KeyFrame, 0.4, {
+        Tween(KeyFrame, 0.35, {
             Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            BackgroundTransparency = 1
+            Position = UDim2.new(0.5, 0, 0.5, 0)
         }, Enum.EasingStyle.Quint)
 
-        task.delay(0.4, function()
+        task.delay(0.35, function()
             KeyFrame.Visible = false
             OpenMain()
         end)
     else
         KeyStatus.TextColor3 = Color3.fromRGB(255, 90, 90)
-        KeyStatus.Text = "✗  Wrong key"
-        Tween(KeyBox, 0.08, {Position = UDim2.new(0, 38, 0, 110)})
-        task.wait(0.08)
-        Tween(KeyBox, 0.08, {Position = UDim2.new(0, 22, 0, 110)})
-        task.wait(0.08)
-        Tween(KeyBox, 0.08, {Position = UDim2.new(0, 30, 0, 110)})
+        KeyStatus.Text = "Wrong key"
         KeyBox.Text = ""
     end
 end
@@ -583,54 +533,43 @@ KeyBox.FocusLost:Connect(function(enter)
     if enter then TryUnlock() end
 end)
 
---// ==================== TOGGLE (RightShift) ====================
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.RightShift then
         if not isUnlocked then return end
-        if isOpen then
-            CloseMain()
-        else
-            OpenMain()
-        end
+        if isOpen then CloseMain() else OpenMain() end
     end
 end)
 
---// ==================== FPS + PING ====================
-local fpsValue = 60
+local fps = 60
 RunService.RenderStepped:Connect(function(dt)
-    fpsValue = math.clamp(Round(1 / math.max(dt, 0.001)), 1, 999)
+    fps = math.clamp(Round(1 / math.max(dt, 0.001)), 1, 999)
 end)
 
 task.spawn(function()
     while true do
-        FPSLabel.Text = "FPS: " .. tostring(fpsValue)
+        FPSLabel.Text = "FPS  " .. fps
+        if fps >= 50 then
+            FPSLabel.TextColor3 = Color3.fromRGB(100, 220, 150)
+        elseif fps >= 30 then
+            FPSLabel.TextColor3 = Color3.fromRGB(255, 210, 80)
+        else
+            FPSLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+        end
 
         local ping = 0
         pcall(function()
             ping = Round(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
         end)
-        PingLabel.Text = "PING: " .. tostring(ping) .. "ms"
+        PingLabel.Text = "PING  " .. ping .. "ms"
 
-        -- Color FPS
-        if fpsValue >= 50 then
-            FPSLabel.TextColor3 = Color3.fromRGB(100, 255, 160)
-        elseif fpsValue >= 30 then
-            FPSLabel.TextColor3 = Color3.fromRGB(255, 220, 80)
-        else
-            FPSLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        end
-
-        task.wait(0.4)
+        task.wait(0.35)
     end
 end)
 
--- Entrance animation for KeyFrame
-KeyFrame.Size = UDim2.new(0, 0, 0, 0)
-KeyFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-Tween(KeyFrame, 0.55, {
-    Size = UDim2.new(0, 380, 0, 260),
-    Position = UDim2.new(0.5, -190, 0.5, -130)
+Tween(KeyFrame, 0.5, {
+    Size = UDim2.new(0, 320, 0, 230),
+    Position = UDim2.new(0.5, -160, 0.5, -115)
 }, Enum.EasingStyle.Back)
 
-print("✅ Teleport Waypoint Pro loaded | Key: . | RightShift = Toggle")
+print("Teleport Waypoint Pro loaded | Key: . | RightShift = Toggle")
